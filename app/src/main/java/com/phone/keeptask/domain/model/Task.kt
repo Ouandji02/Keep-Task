@@ -17,5 +17,9 @@ data class Task(
     @ColumnInfo(name = "description")
     val description :String,
     @ColumnInfo(name = "date")
-    val date : Int
+    val date : Int,
+    @ColumnInfo(name = "contactName")
+    val contactName: String? = null,
+    @ColumnInfo(name = "contactPhone")
+    val contactPhone : String? = null
 )

@@ -63,7 +63,13 @@ class TaskRepositoryImpl(
         }
     }
 
-    override fun getContact(): Flow<Response<Contact>> {
-        TODO("Not yet implemented")
+    override fun getContact() = flow {
+        try {
+            emit(Response.Loading)
+            val request = contentResolverHelper.getAllContact()
+            emit(Response.Success(request))
+        } catch (e: Exception) {
+            emit(Response.Error(e.message.toString()))
+        }
     }
 }

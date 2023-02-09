@@ -11,5 +11,5 @@ interface TaskRepository {
     fun getOneTask(id: String): Flow<Response<Task>>
     fun getAllTasks(): Flow<Response<List<Task>>>
     fun deleteTask(task: Task): Flow<Response<Void>>
-    fun getContact() : Flow<Response<Contact>>
+    fun getContact() : Flow<Response<List<Contact>>>
 }
