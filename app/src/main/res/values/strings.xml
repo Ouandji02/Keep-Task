@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Keep Task</string>
+    <string name="title_notification">Rappel de Tache</string>
+    <string name="description_notification">Vous avez programmez : </string>
 </resources>

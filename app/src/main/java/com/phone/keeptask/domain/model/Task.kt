@@ -4,7 +4,6 @@ import androidx.annotation.NonNull
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import java.time.LocalDateTime
 
 @Entity(tableName = "Task")
 data class Task(
@@ -17,7 +16,7 @@ data class Task(
     @ColumnInfo(name = "description")
     val description :String,
     @ColumnInfo(name = "date")
-    val date : Int,
+    val date : Long,
     @ColumnInfo(name = "contactName")
     val contactName: String? = null,
     @ColumnInfo(name = "contactPhone")
