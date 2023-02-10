@@ -6,17 +6,20 @@ import com.phone.keeptask.domain.model.Contact
 import com.phone.keeptask.domain.model.Response
 import com.phone.keeptask.domain.model.Task
 import com.phone.keeptask.domain.taskRepository.TaskRepository
+import com.phone.keeptask.receiver.TaskAlarmSchudeler
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
 class TaskRepositoryImpl(
     private val taskDao: TaskDao,
-    private val contentResolverHelper: ContentResolverHelper
+    private val contentResolverHelper: ContentResolverHelper,
+    private val taskAlarmSchudeler: TaskAlarmSchudeler
 ) : TaskRepository {
     override fun insertTask(task: Task) = flow {
         try {
             emit(Response.Loading)
             val request = taskDao.insertTask(task)
+            taskAlarmSchudeler.taskSchudeler(task)
             emit(Response.Success(request))
         } catch (e: Exception) {
             emit(Response.Error(e.message.toString()))
@@ -27,6 +30,7 @@ class TaskRepositoryImpl(
         try {
             emit(Response.Loading)
             val request = taskDao.updateTask(task)
+            taskAlarmSchudeler.taskSchudeler(task)
             emit(Response.Success(request))
         } catch (e: Exception) {
             emit(Response.Error(e.message.toString()))
@@ -57,6 +61,7 @@ class TaskRepositoryImpl(
         try {
             emit(Response.Loading)
             val request = taskDao.deleteTask(task)
+            taskAlarmSchudeler.taskCancel(task)
             emit(Response.Success(request))
         } catch (e: Exception) {
             emit(Response.Error(e.message.toString()))

@@ -22,7 +22,7 @@ class TaskAlarmSchudelerImpl(private val context: Context) : TaskAlarmSchudeler 
             AlarmManager.INTERVAL_DAY,
             PendingIntent.getBroadcast(
                 context,
-                task.date.toInt(),
+                task.id.hashCode(),
                 intent,
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
@@ -34,7 +34,7 @@ class TaskAlarmSchudelerImpl(private val context: Context) : TaskAlarmSchudeler 
         alarmManager.cancel(
             PendingIntent.getBroadcast(
                 context,
-                task.date.toInt(),
+                task.id.hashCode(),
                 Intent(context, TaskReceiver::class.java),
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
