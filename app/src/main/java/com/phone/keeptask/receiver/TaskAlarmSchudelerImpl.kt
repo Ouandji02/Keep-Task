@@ -14,7 +14,8 @@ class TaskAlarmSchudelerImpl(private val context: Context) : TaskAlarmSchudeler 
 
     override fun taskSchudeler(task: Task) {
         val intent = Intent(context, TaskReceiver::class.java).apply {
-            putExtra("MESSAGE", "vous avez une tache (${task.name}")
+            putExtra("MESSAGE", task.name)
+            putExtra("NUMBER", task.contactPhone)
         }
         alarmManager.setRepeating(
             AlarmManager.RTC_WAKEUP,
