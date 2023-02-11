@@ -1,26 +1,33 @@
 package com.phone.keeptask.ui.task
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Scaffold
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.phone.keeptask.domain.model.Navigation
-import com.phone.keeptask.domain.model.Task
-import com.phone.keeptask.ui.theme.Shapes
-import com.phone.keeptask.ui.theme.grayLight
+import com.phone.keeptask.domain.model.Response
+import com.phone.keeptask.helperFunction.Functions
+import com.phone.keeptask.ui.task.composables.FloatingButton
+import com.phone.keeptask.ui.task.composables.LoadingComposable
+import com.phone.keeptask.ui.task.composables.TaskItem
+import org.koin.androidx.compose.getViewModel
 
 @Composable
 fun Home(navController: NavController) {
+    val taskViewModel = getViewModel<TaskViewModel>()
+    val context = LocalContext.current
     Scaffold(
         topBar = {
             Text(
@@ -30,63 +37,41 @@ fun Home(navController: NavController) {
             )
         },
         floatingActionButton = {
-            floatingButton(navController)
+            FloatingButton(navController)
         }) {
-        LazyColumn() {
-            items(10) {
-                TaskItem(
-                    onNavigate = { navController.navigate(Navigation.Update.route+"/mgkj") },
-                    Task()
-                )
+        when (val response = taskViewModel.getAllTaskResponse) {
+            is Response.Loading -> LoadingComposable()
+            is Response.Success -> {
+                if (response.data.isEmpty()) Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        "Il y a pas de tache pour le moment",
+                        style = MaterialTheme.typography.body1.copy(
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    )
+                }
+                else LazyColumn() {
+                    items(items = response.data) { task ->
+                        TaskItem(
+                            onNavigate = { navController.navigate(Navigation.Update.route + "/${task.id}") },
+                            task
+                        )
+                        println("dssssssssssssssssssssssss ${task.date}")
+                    }
+                }
+            }
+            is Response.Error -> {
+                Functions.toast(context, response.message)
             }
         }
+
     }
 }
 
-@Composable
-fun floatingButton(navController: NavController) {
-    Box(
-        modifier = Modifier.fillMaxWidth().padding(start = 30.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        FloatingActionButton(
-            onClick = {
-                navController.navigate(Navigation.Create.route)
-            },
-            modifier = Modifier.size(50.dp),
-            backgroundColor = MaterialTheme.colors.primary
-        ) {
-            Icon(imageVector = Icons.Default.Add, contentDescription = "icons", tint = Color.White)
-        }
-    }
-}
 
-@Composable
-fun TaskItem(onNavigate: () -> Unit, task: Task) {
-    Surface(
-        color = grayLight.copy(.35f),
-        shape = Shapes.medium,
-        modifier = Modifier
-            .padding(vertical = 5.dp, horizontal = 10.dp)
-            .fillMaxWidth()
-            .clickable { onNavigate.invoke() }
-    ) {
-        Column(modifier = Modifier.padding(vertical = 10.dp, horizontal = 5.dp)) {
-            Text(
-                "First text",
-                style = MaterialTheme.typography.subtitle1.copy(fontWeight = FontWeight.Bold)
-            )
-            Text(
-                text = "Second text",
-                style = MaterialTheme.typography.subtitle2,
-                color = Color.Black.copy(.4f)
-            )
-            Text(
-                text = "Date de creation",
-                style = MaterialTheme.typography.subtitle2.copy(fontSize = 13.sp),
-                modifier = Modifier.padding(top = 10.dp),
-                color = Color.Black.copy(.25f)
-            )
-        }
-    }
-}
+
+

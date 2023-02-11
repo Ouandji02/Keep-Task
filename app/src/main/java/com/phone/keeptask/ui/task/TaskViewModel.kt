@@ -20,15 +20,11 @@ class TaskViewModel(
         private set
     var deleteTaskResponse by mutableStateOf<Response<Void?>>(Response.Success(null))
         private set
-    var getAllTaskResponse by mutableStateOf<Response<List<Task>?>>(
-        Response.Success<List<Task>?>(
-            null
-        )
-    )
+    var getAllTaskResponse by mutableStateOf<Response<List<Task>>>(Response.Loading)
         private set
-    var getTaskResponse by mutableStateOf<Response<Task?>>(Response.Success(null))
+    var getTaskResponse by mutableStateOf<Response<Task?>>(Response.Loading)
         private set
-    var getAllContactResponse by mutableStateOf<Response<List<Contact>?>>(Response.Success(null))
+    var getAllContactResponse by mutableStateOf<Response<List<Contact>>>(Response.Loading)
         private set
 
     init {

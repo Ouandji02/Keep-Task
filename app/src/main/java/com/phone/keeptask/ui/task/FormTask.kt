@@ -1,14 +1,9 @@
 package com.phone.keeptask.ui.task
 
-import android.app.DatePickerDialog
-import android.app.TimePickerDialog
-import androidx.compose.foundation.clickable
+import android.content.Context
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -22,28 +17,55 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.phone.keeptask.domain.model.Contact
 import com.phone.keeptask.domain.model.Navigation
+import com.phone.keeptask.domain.model.Response
 import com.phone.keeptask.domain.model.Task
+import com.phone.keeptask.helperFunction.Functions
+import com.phone.keeptask.ui.task.composables.DatePicker
+import com.phone.keeptask.ui.task.composables.Field
+import com.phone.keeptask.ui.task.composables.LoadingComposable
+import com.phone.keeptask.ui.task.composables.TimePicker
+import org.koin.androidx.compose.getViewModel
 import java.time.LocalDate
 import java.time.LocalTime
-import java.time.format.DateTimeFormatter
 import java.util.*
 import java.util.Calendar.*
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun FormTask(navController: NavController, task: Task = Task(), update: Boolean = false) {
+fun FormTask(
+    navController: NavController, task: Task = Task(),
+    update: Boolean = false,
+    viewModel: TaskViewModel = getViewModel(),
+    context: Context = LocalContext.current
+) {
     var calendar = Calendar.getInstance()
-    var listOptions = listOf("Ouandji", "Njosseu", "Nganmeni", "Komegni")
-    var selectedItem by remember { mutableStateOf("") }
+    val listOptions = mutableListOf<String>()
+    var listContact = listOf<Contact>()
+    var selectedItem by remember { mutableStateOf(task.contactName) }
     var expanded by remember { mutableStateOf(false) }
     var title by remember { mutableStateOf(task.name) }
     var text by remember { mutableStateOf(task.description) }
-    var deadTime by remember { mutableStateOf("") }
-    var deadDay by remember { mutableStateOf(("")) }
+    var deadTime by remember { mutableStateOf(task.hour) }
+    var deadDay by remember { mutableStateOf((task.dayOfYear)) }
     var stateChange by remember { mutableStateOf(false) }
-    var hour by remember { mutableStateOf("00:00") }
-    var day by remember { mutableStateOf("2023-01-01") }
+    var hour by remember { mutableStateOf(task.hour) }
+    var day by remember { mutableStateOf(task.dayOfYear) }
+    when (val contactResponse = viewModel.getAllContactResponse) {
+        is Response.Loading -> {
+            LoadingComposable()
+        }
+        is Response.Success -> {
+            contactResponse.data.map {
+                listOptions += it.name
+            }
+            listContact = contactResponse.data
+        }
+        is Response.Error -> {
+            Functions.toast(context, "contact non recuperes")
+        }
+    }
     Scaffold(topBar = {
         TopAppBar(
             navigationIcon = {
@@ -65,7 +87,57 @@ fun FormTask(navController: NavController, task: Task = Task(), update: Boolean 
             actions = {
                 IconButton(
                     onClick = {
+                        val task = Task(
+                            name = title,
+                            description = text,
+                            date = calendar.timeInMillis,
+                            contactName = selectedItem,
+                            contactPhone = Functions.ExtratNumber(listContact, selectedItem),
+                            dayOfYear = "%d-%02d-%02d".format(
+                                calendar[Calendar.YEAR],
+                                calendar[Calendar.MONTH],
+                                calendar[Calendar.DAY_OF_MONTH]
+                            ),
+                            hour = "%02d:%02d".format(
+                                calendar[Calendar.HOUR],
+                                calendar[Calendar.MINUTE]
+                            )
+                        )
                         if (!stateChange && update) {
+                            viewModel.deleteTask(task)
+                            when (val deleteResponse = viewModel.deleteTaskResponse) {
+                                is Response.Loading -> {}
+                                is Response.Success -> {
+                                    navController.navigate(Navigation.Home.route)
+                                }
+                                is Response.Error -> Functions.toast(
+                                    context,
+                                    deleteResponse.message
+                                )
+                            }
+                        }
+                        if (stateChange && update) {
+                            viewModel.updateTask(task)
+                            when (val updateResponse = viewModel.updateTaskResponse) {
+                                is Response.Loading -> {}
+                                is Response.Success -> {
+                                    navController.navigate(Navigation.Home.route)
+                                }
+                                is Response.Error -> Functions.toast(
+                                    context,
+                                    updateResponse.message
+                                )
+                            }
+                        }
+                        if (!update && stateChange) {
+                            viewModel.addTask(task)
+                            when (val addResponse = viewModel.addTaskResponse) {
+                                is Response.Loading -> {}
+                                is Response.Success -> {
+                                    navController.navigate(Navigation.Home.route)
+                                }
+                                is Response.Error -> Functions.toast(context, addResponse.message)
+                            }
                         }
                     }) {
                     Icon(
@@ -190,124 +262,4 @@ fun FormTask(navController: NavController, task: Task = Task(), update: Boolean 
             }
         }
     }
-}
-
-@Composable
-fun DatePicker(
-    label: String,
-    value: String,
-    onValueChange: (Int, Int,Int) -> Unit ,
-    keyboardActions: KeyboardActions = KeyboardActions.Default,
-    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    pattern: String = "yyyy-MM-dd",
-) {
-    val formatter = DateTimeFormatter.ofPattern(pattern)
-    val date = if (value.isNotBlank()) LocalDate.parse(value, formatter) else LocalDate.now()
-    val dialog = DatePickerDialog(
-        LocalContext.current,
-        { _, year, month, dayOfMonth ->
-            onValueChange(year, month, dayOfMonth)
-        },
-        date.year,
-        date.monthValue - 1,
-        date.dayOfMonth,
-    )
-
-    TextField(
-        placeholder = {
-            Text(
-                text = label, style = MaterialTheme.typography.body2.copy(
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Medium
-                ),
-                color = Color.Black.copy(.25f)
-            )
-        },
-        onValueChange = {},
-        value = value,
-        enabled = false,
-        modifier = Modifier.clickable { dialog.show() }.fillMaxWidth(),
-        keyboardOptions = keyboardOptions,
-        keyboardActions = keyboardActions,
-        colors = TextFieldDefaults.textFieldColors(
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent,
-            backgroundColor = Color.Transparent,
-            disabledIndicatorColor = Color.Transparent
-        )
-    )
-}
-
-@Composable
-fun TimePicker(
-    label: String,
-    value: String,
-    onValueChange: (Int, Int) -> Unit,
-    keyboardActions: KeyboardActions = KeyboardActions.Default,
-    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
-    pattern: String = "HH:mm",
-    is24HourView: Boolean = true,
-) {
-    val formatter = DateTimeFormatter.ofPattern(pattern)
-    val time = if (value.isNotBlank()) LocalTime.parse(value, formatter) else LocalTime.now()
-    val dialog = TimePickerDialog(
-        LocalContext.current,
-        { _, hour, minute -> onValueChange(hour, minute) },
-        time.hour,
-        time.minute,
-        is24HourView,
-    )
-
-    TextField(
-        placeholder = {
-            Text(
-                text = label, style = MaterialTheme.typography.body2.copy(
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Medium
-                ),
-                color = Color.Black.copy(.25f)
-            )
-        },
-        value = value,
-        onValueChange = {},
-        enabled = false,
-        modifier = Modifier.clickable { dialog.show() }.fillMaxWidth(),
-        keyboardOptions = keyboardOptions,
-        keyboardActions = keyboardActions,
-        colors = TextFieldDefaults.textFieldColors(
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent,
-            backgroundColor = Color.Transparent,
-            disabledIndicatorColor = Color.Transparent
-        )
-    )
-}
-
-@Composable
-fun Field(
-    value: String,
-    onValueChange: (String) -> Unit,
-    placeholder: String
-) {
-    TextField(
-        value = value,
-        onValueChange = onValueChange,
-        placeholder = {
-            Text(
-                placeholder,
-                style = MaterialTheme.typography.body2.copy(
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Medium
-                ),
-                color = Color.Black.copy(.25f)
-            )
-        },
-        maxLines = 30,
-        colors = TextFieldDefaults.textFieldColors(
-            focusedIndicatorColor = Color.Transparent,
-            unfocusedIndicatorColor = Color.Transparent,
-            backgroundColor = Color.Transparent,
-            disabledIndicatorColor = Color.Transparent
-        )
-    )
 }

@@ -18,7 +18,7 @@ fun Navigation() {
         composable(Navigation.Home.route) {
             Home(navController)
         }
-        composable(Navigation.Update.route + "/id", arguments = listOf(
+        composable(Navigation.Update.route + "/{id}", arguments = listOf(
             navArgument("id"){
                 nullable = false
                 type = NavType.StringType
