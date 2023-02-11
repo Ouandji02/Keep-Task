@@ -10,15 +10,15 @@ data class Task(
     @PrimaryKey
     @NonNull
     @ColumnInfo(name = "id")
-    val id : String,
+    val id : String = "",
     @ColumnInfo(name = "name")
-    val name : String,
+    val name : String = "",
     @ColumnInfo(name = "description")
-    val description :String,
+    val description :String = "",
     @ColumnInfo(name = "date")
-    val date : Long,
+    val date : Long = 0,
     @ColumnInfo(name = "contactName")
-    val contactName: String? = null,
+    val contactName: String = "",
     @ColumnInfo(name = "contactPhone")
-    val contactPhone : String? = null
+    val contactPhone : String = ""
 )
