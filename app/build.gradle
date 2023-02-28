@@ -80,4 +80,6 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:$coroutines_version"
     //permission
     implementation("com.google.accompanist:accompanist-permissions:0.23.1")
+    //splash screen
+    implementation 'androidx.core:core-splashscreen:1.0.0-alpha02'
 }

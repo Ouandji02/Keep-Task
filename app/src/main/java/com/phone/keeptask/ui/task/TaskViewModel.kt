@@ -1,5 +1,9 @@
 package com.phone.keeptask.ui.task
 
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
+import android.telephony.SmsManager
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -9,6 +13,7 @@ import com.phone.keeptask.domain.model.Contact
 import com.phone.keeptask.domain.model.Response
 import com.phone.keeptask.domain.model.Task
 import com.phone.keeptask.domain.taskRepository.TaskRepository
+import com.phone.keeptask.helperFunction.Functions
 import kotlinx.coroutines.launch
 
 class TaskViewModel(
@@ -41,6 +46,7 @@ class TaskViewModel(
     fun updateTask(task: Task) = viewModelScope.launch {
         taskRepository.updateTask(task).collect {
             updateTaskResponse = it
+            println("kasjdshjadshsj" + it)
         }
     }
 
@@ -68,4 +74,20 @@ class TaskViewModel(
         }
     }
 
+    fun sendSmS(phoneNumber: String, data: String, context: Context) {
+        val sendPI = PendingIntent.getBroadcast(
+            context,
+            0,
+            Intent("SMS_SENT"),
+            0
+        )
+        val piDelivered = PendingIntent.getBroadcast(context, 0, Intent("SMS_DELIVERED"), 0)
+        try {
+            val smsManager = SmsManager.getDefault()
+            smsManager.sendTextMessage(phoneNumber, null, data, null, null)
+            Functions.toast(context, "Message envoye a $phoneNumber")
+        } catch (e: Exception) {
+            Functions.toast(context, e.message.toString())
+        }
+    }
 }
