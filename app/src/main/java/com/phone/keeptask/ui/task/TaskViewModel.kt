@@ -56,13 +56,13 @@ class TaskViewModel(
         }
     }
 
-    fun getAllTask() = viewModelScope.launch {
+    private fun getAllTask() = viewModelScope.launch {
         taskRepository.getAllTasks().collect {
             getAllTaskResponse = it
         }
     }
 
-    fun getAllContact() = viewModelScope.launch {
+    private fun getAllContact() = viewModelScope.launch {
         taskRepository.getContact().collect {
             getAllContactResponse = it
         }

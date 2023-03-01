@@ -17,7 +17,7 @@ val taskModule = module {
         TaskAlarmSchudelerImpl(get())
     }
     single<TaskRepository> {
-        TaskRepositoryImpl(get(), get(), get())
+        TaskRepositoryImpl(get(), get(), get(),get())
     }
     viewModel {
         TaskViewModel(get())

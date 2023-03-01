@@ -28,7 +28,6 @@ class TaskAlarmSchudelerImpl(private val context: Context) : TaskAlarmSchudeler 
                 PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
             )
         )
-        Functions.toast(context, "Tache prise en compte")
     }
 
     override fun taskCancel(task: Task) {
