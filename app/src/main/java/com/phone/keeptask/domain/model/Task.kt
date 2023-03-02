@@ -10,7 +10,7 @@ data class Task(
     @PrimaryKey
     @NonNull
     @ColumnInfo(name = "id")
-    val id : String ="1",
+    val id : String = "" ,
     @ColumnInfo(name = "name")
     val name : String = "",
     @ColumnInfo(name = "description")
@@ -18,9 +18,9 @@ data class Task(
     @ColumnInfo(name = "date")
     val date : Long = 0,
     @ColumnInfo( name= "hour")
-    val hour : String = "",
+    val hour : String = "00:00",
     @ColumnInfo(name = "dayOfYear")
-    val dayOfYear : String = "",
+    val dayOfYear : String = "2023-01-01",
     @ColumnInfo(name = "contactName")
     val contactName: String = "",
     @ColumnInfo(name = "contactPhone")

@@ -10,8 +10,8 @@ object Functions {
         Toast.makeText(context, message, Toast.LENGTH_LONG).show()
     }
 
-    fun ExtratNumber(listContact: List<Contact>, name: String): String {
-        return listContact.filter { contact -> contact.name === name }[0].tel
+    fun extratNumber(listContact: List<Contact>, name: String): String {
+        return listContact.filter { contact -> name.contains(contact.name) }[0].tel
     }
 
 }

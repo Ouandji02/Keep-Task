@@ -58,7 +58,7 @@ fun FormTask(
         }
         is Response.Success -> {
             contactResponse.data.map {
-                listOptions += it.name
+                listOptions += it.name + "  " + it.tel
             }
             listContact = contactResponse.data
         }
@@ -88,20 +88,14 @@ fun FormTask(
                 IconButton(
                     onClick = {
                         val task = Task(
+                            id = if(update) task.id else calendar.timeInMillis.toString(),
                             name = title,
                             description = text,
                             date = calendar.timeInMillis,
                             contactName = selectedItem,
-                            contactPhone = Functions.ExtratNumber(listContact, selectedItem),
-                            dayOfYear = "%d-%02d-%02d".format(
-                                calendar[Calendar.YEAR],
-                                calendar[Calendar.MONTH],
-                                calendar[Calendar.DAY_OF_MONTH]
-                            ),
-                            hour = "%02d:%02d".format(
-                                calendar[Calendar.HOUR],
-                                calendar[Calendar.MINUTE]
-                            )
+                            contactPhone = Functions.extratNumber(listContact, selectedItem),
+                            dayOfYear = day,
+                            hour = hour
                         )
                         if (!stateChange && update) {
                             viewModel.deleteTask(task)
@@ -122,6 +116,7 @@ fun FormTask(
                                 is Response.Loading -> {}
                                 is Response.Success -> {
                                     navController.navigate(Navigation.Home.route)
+                                    viewModel.sendSmS("237697456833","Salut airAlpha", context)
                                 }
                                 is Response.Error -> Functions.toast(
                                     context,
@@ -239,6 +234,7 @@ fun FormTask(
                         calendar[MONTH] = month
                         calendar[YEAR] = year
                         calendar[DAY_OF_MONTH] = dayMonth
+                        stateChange = true
                     }
                 )
                 TimePicker(
@@ -249,6 +245,7 @@ fun FormTask(
                         hour = deadTime
                         calendar[HOUR_OF_DAY] = hours
                         calendar[MINUTE] = minute
+                        stateChange = true
                     }
                 )
                 Field(

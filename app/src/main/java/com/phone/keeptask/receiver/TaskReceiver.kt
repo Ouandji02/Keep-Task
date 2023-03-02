@@ -22,10 +22,10 @@ class TaskReceiver : BroadcastReceiver() {
                 val notificationDisplay = NotificationManag(context)
                 notificationDisplay.createChannelNotification()
                 notificationDisplay.createNotification(message)
-                sms.sendSmS(number.toString(), " C'est l'heure de notre programme : message")
+                sms.sendSmS(number.toString(), " C'est l'heure de notre programme : $message")
                 scope.launch {
-                    delay(10000)
-                    context.startService(intent)
+                    delay(30000)
+                    context.stopService(intent)
                 }
             }
         }

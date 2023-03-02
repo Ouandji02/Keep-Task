@@ -20,7 +20,6 @@ class TaskRepositoryImpl(
 ) : TaskRepository {
     override fun insertTask(task: Task) = flow {
         try {
-            emit(Response.Loading)
             val request = taskDao.insertTask(task)
             taskAlarmSchudeler.taskSchudeler(task)
             Functions.toast(context, "Tache prise en compte")
@@ -32,7 +31,6 @@ class TaskRepositoryImpl(
 
     override fun updateTask(task: Task) = flow {
         try {
-            emit(Response.Loading)
             val request = taskDao.updateTask(task)
             taskAlarmSchudeler.taskSchudeler(task)
             emit(Response.Success(request))
@@ -63,7 +61,6 @@ class TaskRepositoryImpl(
 
     override fun deleteTask(task: Task) = flow {
         try {
-            emit(Response.Loading)
             val request = taskDao.deleteTask(task)
             taskAlarmSchudeler.taskCancel(task)
             emit(Response.Success(request))
